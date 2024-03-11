@@ -1,0 +1,6 @@
+resource_group_name  = "react-rg"
+location             = "Southeast Asia"
+service_plan_name    = "azure_web"
+docker_registry_name = "reactweb11"
+web-app-name         = "material-react"
+websites_port        = "80"

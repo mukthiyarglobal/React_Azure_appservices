@@ -1,0 +1,31 @@
+stages:
+    - build
+    - build&push acr
+    - deploy into aks
+variables:
+  IMAGE_TAG: "$CI_PIPELINE_IID"
+
+build:
+    stage: build
+    image: node:16
+    script:
+        - npm install
+        - npm run build
+docker_build:
+    stage: build&push acr
+    image: docker:latest
+    services:
+      - docker:dind
+    script:
+      - docker build -t $ACR_REGISTRY_IMAGE:$IMAGE_TAG .
+      - echo $CI_REGISTRY_PASSWORD | docker login $CI_REGISTRY_URL --username $CI_REGISTRY_USER --password-stdin
+      - docker push $ACR_REGISTRY_IMAGE:$IMAGE_TAG
+deploy:
+    stage: deploy into aks
+    image:
+      name: bitnami/kubectl:1.14
+      entrypoint: [""]
+    script:
+      - echo "$KUBE_CONFIG" > kubeconfig.yml
+      - sed -i "s/__IMAGE_TAG__/$IMAGE_TAG/g" $KUBE_DEPLOYMENT_FILE
+      - kubectl --kubeconfig=kubeconfig.yml apply -f $KUBE_DEPLOYMENT_FILE

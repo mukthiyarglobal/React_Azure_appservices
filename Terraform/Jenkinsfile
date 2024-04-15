@@ -9,7 +9,7 @@ pipeline {
         stage ('azure_login') {
             steps {
                 script {
-		   azureCLI commands: [[exportVariablesString: '', script: '']], principalCredentialId: 'azure_loginid'
+		    azureCLI commands: [[exportVariablesString: '', script: '']], principalCredentialId: 'azure_loginid'
 		} 
             }
         }
@@ -40,7 +40,10 @@ pipeline {
                     // Check user input
                     if (userInput == 'Yes') {
                         // Execute terraform apply
+			dir('Terraform') {	
                         sh 'terraform apply tfplan'
+			}
+					   
                     } else {
                         echo 'Terraform apply skipped as per user choice.'
                     }

@@ -27,26 +27,11 @@ pipeline {
                 }
             }
         }
-        stage('Terraform Apply') {
+        stage ('terraform action') {
             steps {
-                script {
-                    // Request user input (Yes/No)
-                    def userInput = input(
-                        id: 'userInput',
-                        message: 'Do you want to apply the Terraform changes?',
-                        parameters: [choice(choices: ['Yes', 'No'], description: 'Select Yes or No', name: 'Proceed')]
-                    )
- 
-                    // Check user input
-                    if (userInput == 'Yes') {
-                        // Execute terraform apply
-			dir('Terraform') {	
-                        sh 'terraform apply tfplan'
-			}
-					   
-                    } else {
-                        echo 'Terraform apply skipped as per user choice.'
-                    }
+                dir('Terraform') {
+                     echo "Terraform action is --> ${action}"
+                     sh ('terraform ${action} --auto-approve') 
                 }
             }
         }

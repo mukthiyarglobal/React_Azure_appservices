@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         //once you sign up for Docker hub, use that user_id here
-        registry = "reactweb11.azurecr.io/react-app"
+        registry = "reactacr11.azurecr.io/react-app"
         //- update your credentials ID after creating credentials for connecting to Docker Hub
         registryCredential = 'azure_acr_registry'
         dockerImage = ''
@@ -43,7 +43,7 @@ pipeline {
                        
                     }
                     withCredentials([usernamePassword(credentialsId: 'azure_acr_registry', passwordVariable: 'password', usernameVariable: 'username')]) {
-                       sh 'az webapp config container set --name material-react --resource-group react-rg --docker-custom-image-name ${registry}:${BUILD_NUMBER} --docker-registry-server-url https://reactweb11.azurecr.io --docker-registry-server-user ${username} --docker-registry-server-password ${password}'
+                       sh 'az webapp config container set --name reactazurewebapp --resource-group react-rg --docker-custom-image-name ${registry}:${BUILD_NUMBER} --docker-registry-server-url https://reactacr11.azurecr.io --docker-registry-server-user ${username} --docker-registry-server-password ${password}'
                     }
                 }
             }

@@ -6,34 +6,43 @@ pipeline {
                 git branch: 'main', credentialsId: 'Github_login', url: 'https://github.com/mukthiyarglobal/React_Azure_appservices.git'
             }
         }
-        stage ('azure_login') {
-            steps {
-                withCredentials([azureServicePrincipal('azure_loginid')]) {
-                   // some block
-                }
-            }
-        }
+        // stage ('azure_login') {
+        //     steps {
+        //         withCredentials([azureServicePrincipal('azure_loginid')]) {
+        //            // some block
+        //            dir('Terraform') {
+        //             sh 'terraform init'
+
+        //            }
+        //         }
+        //     }
+        // }
         stage ('terraform init') {
             steps {
-                dir('Terraform') {
+                withCredentials([azureServicePrincipal('azure_loginid')]) {
+                    dir('Terraform') {
                     sh 'terraform init'
-                }
-            }
-        }
-        stage ('terraform plan') {
-            steps {
-                dir('Terraform') {
                     sh 'terraform plan -out=tfplan'
+                    echo "Terraform action is --> ${action}"
+                    sh ('terraform ${action} --auto-approve')
+                    }
                 }
             }
         }
-        stage ('terraform action') {
-            steps {
-                dir('Terraform') {
-                     echo "Terraform action is --> ${action}"
-                     sh ('terraform ${action} --auto-approve') 
-                }
-            }
-        }
+        // stage ('terraform plan') {
+        //     steps {
+        //         dir('Terraform') {
+        //             sh 'terraform plan -out=tfplan'
+        //         }
+        //     }
+        // }
+        // stage ('terraform action') {
+        //     steps {
+        //         dir('Terraform') {
+        //              echo "Terraform action is --> ${action}"
+        //              sh ('terraform ${action} --auto-approve') 
+        //         }
+        //     }
+        // }
     }
 }

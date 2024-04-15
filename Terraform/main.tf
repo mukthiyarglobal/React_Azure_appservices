@@ -1,19 +1,10 @@
+# Define Azure Resource Group
 resource "azurerm_resource_group" "aks-rg" {
   name     = var.resource_group_name
   location = var.location
 }
-resource "azurerm_service_plan" "my-service-plan" {
-  name                = var.service_plan_name
-  resource_group_name = azurerm_resource_group.aks-rg.name
-  location            = azurerm_resource_group.aks-rg.location
-  os_type             = "Linux"
-  sku_name            = "B1"
-}
-resource "azurerm_role_assignment" "acr_pull" {
-  scope                = azurerm_container_registry.acr.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_linux_web_app.my-web-app.identity.0.principal_id
-}
+
+# Define Azure Container Registry
 resource "azurerm_container_registry" "acr" {
   name                = var.docker_registry_name
   resource_group_name = azurerm_resource_group.aks-rg.name
@@ -21,6 +12,17 @@ resource "azurerm_container_registry" "acr" {
   sku                 = "Basic"
   admin_enabled       = true
 }
+
+# Define Azure Service Plan
+resource "azurerm_service_plan" "my-service-plan" {
+  name                = var.service_plan_name
+  resource_group_name = azurerm_resource_group.aks-rg.name
+  location            = azurerm_resource_group.aks-rg.location
+  os_type             = "Linux"
+  sku_name            = "B1"
+}
+
+# Define Azure Linux Web App
 resource "azurerm_linux_web_app" "my-web-app" {
   name                = var.web-app-name
   resource_group_name = azurerm_resource_group.aks-rg.name
@@ -29,14 +31,17 @@ resource "azurerm_linux_web_app" "my-web-app" {
 
   site_config {
     always_on = true
-       application_stack {
-         docker_image     = "${azurerm_container_registry.acr.login_server}/react-app"
-         docker_image_tag = "latest"
-        }
+
+    application_stack {
+      docker_image     = "${azurerm_container_registry.acr.login_server}/react-app"
+      docker_image_tag = "latest"
+    }
   }
+
   identity {
     type = "SystemAssigned"
   }
+
   app_settings = {
     DOCKER_REGISTRY_SERVER_URL      = azurerm_container_registry.acr.login_server
     DOCKER_REGISTRY_SERVER_USERNAME = azurerm_container_registry.acr.admin_username
@@ -45,7 +50,9 @@ resource "azurerm_linux_web_app" "my-web-app" {
   }
 }
 
-#data "azurerm_container_registry" "my-container-registry" {
-#  name                = var.docker_registry_name
-#  resource_group_name = var.resource_group_name
-#}
+# Define Azure Role Assignment
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_linux_web_app.my-web-app.identity.0.principal_id
+}

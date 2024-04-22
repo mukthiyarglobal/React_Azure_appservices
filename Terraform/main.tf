@@ -4,7 +4,7 @@ resource "azurerm_resource_group" "aks-rg" {
   location = var.location
 }
 # Define Azure Role Assignment
-resource "azurerm_role_assignment" "acr_pull" {
+resource "azurerm_role_assignment" "role_acrpull" {
   scope                = azurerm_container_registry.acr.id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_linux_web_app.my-web-app.identity.0.principal_id
